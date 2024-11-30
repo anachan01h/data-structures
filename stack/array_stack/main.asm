@@ -1,23 +1,43 @@
 extern malloc
+    
+struc ArrayStack
+    .data resq 1
+    .capacity resd 1
+    .size resd 1
+endstruc
 
-section .data
-stack:
-    .data dq 0
-    .length dq 0
-    .size dq 0
+section .bss
+    stack resb ArrayStack_size
 
 section .text
 global main
 
 main:
-    call create
-    mov rdi, [stack.length]
+    mov rdi, stack
+    call stack_init
+    mov rdi, rax
     mov rax, 0x3C
     syscall
 
-create:
-    mov rdi, 8
+; stack_init(stack: &ArrayStack) -> Option<()>
+stack_init:
+    ; # Stack frame
+    ; [rsp]: &ArrayStack
+    enter 8, 0
+    mov [rsp], rdi
+
+    mov rdi, 1 * 8
     call malloc
-    mov [stack.length], byte 1
-    mov [stack.size], byte 0
+
+    test rax, rax
+    jz .exit
+
+    mov rdx, [rsp]
+    mov [rdx + ArrayStack.data], rax
+    mov [rdx + ArrayStack.capacity], dword 1
+    mov [rdx + ArrayStack.size], dword 0
+
+    mov rax, 1
+.exit:
+    leave
     ret
