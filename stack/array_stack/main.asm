@@ -18,28 +18,29 @@ main:
 
     mov rdi, stack
     call stack_init
-    test rax, rax
-    jz .exit
+    test eax, eax
+    jnz .early_exit
 
     mov [stack + ArrayStack.size], dword 1
     mov rdi, stack
     call stack_resize
     test rax, rax
-    jz .exit
+    jnz .exit
 
+.exit:
     push qword [stack + ArrayStack.capacity]
     push rax
 
     mov rdi, stack
     call stack_free
 
-.exit:
     pop rax
     pop rax
+.early_exit:
     leave
     ret
 
-; stack_init(stack: &ArrayStack) -> Option<()>
+; stack_init(stack: &ArrayStack) -> Result<(), ()>
 stack_init:
     ; # Stack frame
     ; [rbp - 8]: &ArrayStack
@@ -50,16 +51,18 @@ stack_init:
 
     mov rdi, 1 * 8
     call malloc
+    mov rdx, rax
 
-    test rax, rax
+    xor eax, eax
+    test rdx, rdx
+    setz al
     jz .exit
 
     mov rdi, [rbp - 8]
-    mov [rdi + ArrayStack.data], rax
+    mov [rdi + ArrayStack.data], rdx
     mov [rdi + ArrayStack.capacity], dword 1
     mov [rdi + ArrayStack.size], dword 0
 
-    mov rax, 1
 .exit:
     leave
     ret
@@ -85,7 +88,7 @@ stack_free:
     leave
     ret
 
-; stack_resize(stack: &ArrayStack) -> Option<()>
+; stack_resize(stack: &ArrayStack) -> Result<(), ()>
 stack_resize:
     ; # Stack Frame
     ; [rbp - 8]: &ArrayStack
@@ -102,16 +105,18 @@ stack_resize:
     mov [rbp - 12], esi         ; save new capacity as local variable
     mov rdi, [rdi + ArrayStack.data]
     call realloc
+    mov rdx, rax
 
-    test rax, rax
-    jz .exit                    ; if error, return None
+    xor eax, eax
+    test rdx, rdx
+    setz al
+    jz .exit
 
     mov rdi, [rbp - 8]
-    mov [rdi + ArrayStack.data], rax
+    mov [rdi + ArrayStack.data], rdx
     mov esi, [rbp - 12]
     mov [rdi + ArrayStack.capacity], esi
 
-    mov eax, 1                  ; return Some(())
 .exit:
     leave
     ret
