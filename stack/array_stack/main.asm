@@ -13,6 +13,9 @@ section .text
 global main
 
 main:
+    push rbp
+    mov rbp, rsp
+
     mov rdi, stack
     call stack_init
     test rax, rax
@@ -22,16 +25,18 @@ main:
     call stack_free
 
 .exit:
-    mov rdi, [stack + ArrayStack.capacity]
-    mov rax, 0x3C
-    syscall
+    mov rax, [stack + ArrayStack.capacity]
+    leave
+    ret
 
 ; stack_init(stack: &ArrayStack) -> Option<()>
 stack_init:
     ; # Stack frame
-    ; [rsp]: &ArrayStack
-    enter 8, 0
-    mov [rsp], rdi
+    ; [rbp - 8]: &ArrayStack
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16
+    mov [rbp - 8], rdi
 
     mov rdi, 1 * 8
     call malloc
@@ -39,7 +44,7 @@ stack_init:
     test rax, rax
     jz .exit
 
-    mov rdi, [rsp]
+    mov rdi, [rbp - 8]
     mov [rdi + ArrayStack.data], rax
     mov [rdi + ArrayStack.capacity], dword 1
     mov [rdi + ArrayStack.size], dword 0
@@ -52,14 +57,16 @@ stack_init:
 ; stack_free(stack: &ArrayStack)
 stack_free:
     ; # Stack frame
-    ; [rsp]: &ArrayStack
-    enter 8, 0
-    mov [rsp], rdi
+    ; [rbp - 8]: &ArrayStack
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16
+    mov [rbp - 8], rdi
 
     mov rdi, [rdi + ArrayStack.data]
     call free
 
-    mov rdi, [rsp]
+    mov rdi, [rbp - 8]
     xor rax, rax
     mov [rdi + ArrayStack.data], rax
     mov [rdi + ArrayStack.capacity], eax
