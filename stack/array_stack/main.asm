@@ -21,21 +21,22 @@ main:
     test eax, eax
     jnz .early_exit
 
-    mov [stack + ArrayStack.size], dword 1
-    mov rdi, stack
-    call stack_resize
-    test rax, rax
-    jnz .exit
+	mov rdi, stack
+	mov rsi, 5
+	call stack_push
+
+	mov rdi, stack
+	mov rsi, 12
+	call stack_push
 
 .exit:
-    push qword [stack + ArrayStack.capacity]
-    push rax
+	mov rbx, [stack + ArrayStack.data]
+	mov rbx, [rbx + 8]
 
     mov rdi, stack
     call stack_free
 
-    pop rax
-    pop rax
+	mov rax, rbx
 .early_exit:
     leave
     ret
@@ -120,3 +121,31 @@ stack_resize:
 .exit:
     leave
     ret
+
+; stack_push(stack: &ArrayStack, value: u64) -> Result<(), ()>
+stack_push:
+	push rbp
+	mov rbp, rsp
+	xor eax, eax
+
+	mov edx, [rdi + ArrayStack.capacity]
+	cmp [rdi + ArrayStack.size], edx ; if stack.size >= stack.capacity ...
+	jb .no_resize
+
+	push rdi
+	push rsi					; save arguments
+	call stack_resize			; ... then stack.resize()
+	test eax, eax
+	jnz .error
+	pop rsi
+	pop rdi						; restore arguments
+
+.no_resize:
+	mov rdx, [rdi + ArrayStack.data]
+	mov ecx, [rdi + ArrayStack.size]
+	mov [rdx + 8 * rcx], rsi
+	inc dword [rdi + ArrayStack.size]
+
+.error:
+	leave
+	ret
