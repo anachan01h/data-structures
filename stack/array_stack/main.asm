@@ -115,6 +115,7 @@ stack_resize:
     cmovz esi, edx              ; if 2 * size == 0, then esi <- 1
     mov [rbp - 12], esi         ; save new capacity as local variable
     mov rdi, [rdi + ArrayStack.data]
+	shl rsi, 3
     call realloc
     mov rdx, rax
 
