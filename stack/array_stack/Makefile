@@ -1,5 +1,8 @@
 NAME = main
 
+run: bin/$(NAME)
+	./bin/main
+
 all: clean bin/$(NAME)
 
 bin/$(NAME): bin/$(NAME).o

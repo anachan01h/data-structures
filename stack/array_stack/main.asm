@@ -29,9 +29,19 @@ main:
 	mov rsi, 12
 	call stack_push
 
+	mov rdi, stack
+	mov rsi, 15
+	call stack_push
+
+	mov rdi, stack
+	call stack_pop
+
+	mov rdi, stack
+	call stack_pop
+
 .exit:
-	mov rbx, [stack + ArrayStack.data]
-	mov rbx, [rbx + 8]
+	mov rbx, [stack + ArrayStack.capacity]
+	mov rbx, rdx
 
     mov rdi, stack
     call stack_free
@@ -129,7 +139,7 @@ stack_push:
 	xor eax, eax
 
 	mov edx, [rdi + ArrayStack.capacity]
-	cmp [rdi + ArrayStack.size], edx ; if stack.size >= stack.capacity ...
+	cmp [rdi + ArrayStack.size], edx ; if stack.size >= stack.capacity...
 	jb .no_resize
 
 	push rdi
@@ -147,5 +157,33 @@ stack_push:
 	inc dword [rdi + ArrayStack.size]
 
 .error:
+	leave
+	ret
+
+; stack_pop(stack: &ArrayStack) -> Result<u64, ()>
+stack_pop:
+	; # Stack Frame
+	; [rbp - 8]: u64
+	push rbp
+	mov rbp, rsp
+	sub rsp, 16
+	xor eax, eax
+
+	mov rsi, [rdi + ArrayStack.data]
+	mov ecx, [rdi + ArrayStack.size]
+	mov rdx, [rsi + 8 * rcx - 8]
+	mov [rbp - 8], rdx			; save top value
+	dec dword [rdi + ArrayStack.size] ; decrement size
+
+	dec ecx
+	mov eax, 3
+	mul ecx
+	cmp eax, [rdi + ArrayStack.capacity] ; if 3 * stack.size <= stack capacity...
+	ja .no_resize
+
+	call stack_resize			; ... then stack.resize()
+
+.no_resize:
+	mov rdx, [rbp - 8]
 	leave
 	ret
