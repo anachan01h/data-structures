@@ -42,3 +42,55 @@ function free(self: &ArrayQueue<T>):
 	self.size <- 0
 	self.start <- 0
 ```
+
+### `resize(self: &ArrayQueue<T>) -> Result<(), ()>`
+
+Updates the size of the dynamic array of `self`.
+
+```
+function resize(self: &ArrayQueue<T>) -> Result<(), ()>:
+	new_capacity <- max(1, 2 * self.size)
+	new_data <- mem_alloc(new_capacity * size_of(T))
+	if new_data = Error(_):
+		return Error
+	else if new_data = Ok(data):
+		new_data = data
+	for i in 0, 1, ..., self.size - 1:
+		new_data[i] <- self.data[(self.start + i) % self.capacity]
+	mem_free(self.data)
+	self.data <- new_data
+	self.capacity <- new_capacity
+	self.start <- 0
+	return Ok
+```
+
+### `enqueue(self: &ArrayQueue<T>, value: T) -> Result<(), ()>`
+
+Adds `value` to the end of `self`.
+
+```
+function enqueue(self: &ArrayQueue<T>, value: T) -> Result<(), ()>:
+	if self.size >= self.capacity:
+		result <- self.resize()
+		if result = Error:
+			return Error
+	self.data[(self.start + self.data) % self.capacity] <- value
+	self.size <- self.size + 1
+	return Ok
+```
+
+### `dequeue(self: &ArrayQueue<T>) -> Result<T, ()>`
+
+Removes a value from the start of `self`, and returns this value.
+
+```
+function dequeue(self: &ArrayQueue<T>) -> Result<T, ()>:
+	value <- self.data[self.start]
+	self.start <- (self.start + 1) % self.capacity
+	self.size <- self.size - 1
+	if self.capacity >= 3 * self.size:
+		result <- self.resize()
+		if result = Error:
+			return Error
+	return Ok(value)
+```
