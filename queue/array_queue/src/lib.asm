@@ -125,10 +125,10 @@ queue_enqueue:
 	push rdi
 	push rsi
 	call queue_resize
-	test eax, eax
-	jnz .error
 	pop rsi
 	pop rdi
+	test eax, eax
+	jnz .error
 
 .no_resize:
 	xor edx, edx
