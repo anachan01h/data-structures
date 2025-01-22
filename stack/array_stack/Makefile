@@ -1,20 +1,25 @@
-NAME = main
+# Directory with dynamic array implementation
+DIR = ../../concrete/dynamic_array
 
-run: bin/$(NAME)
-	./bin/main
+.PHONY: tests clean
 
-all: clean bin/$(NAME)
+tests: bin/test
+	./bin/test
 
-bin/$(NAME): bin/$(NAME).o
-	gcc -o bin/$(NAME) bin/$(NAME).o -no-pie
+$(DIR)/bin/lib.o:
+	@$(MAKE) -C $(DIR)
 
-bin/$(NAME).o: $(NAME).asm bin/
-	nasm -f elf64 -o bin/$(NAME).o $(NAME).asm
+bin/lib.o: src/lib.asm include/utils.inc | bin/
+	nasm -f elf64 src/lib.asm -o bin/lib.o
+
+bin/test.o: tests/test.asm include/utils.inc | bin/
+	nasm -f elf64 tests/test.asm -o bin/test.o
+
+bin/test: $(DIR)/bin/lib.o bin/lib.o bin/test.o
+	gcc $(DIR)/bin/lib.o bin/lib.o bin/test.o -o bin/test -no-pie
 
 bin/:
 	mkdir bin
-
-.PHONY: clean
 
 clean:
 	rm -rf bin
