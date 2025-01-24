@@ -1,61 +1,12 @@
 # ArrayStack
 
-An `ArrayStack<T>` is an implementation of `Stack<T>` using a dynamic array.
+An `ArrayStack<T>` is an implementation of `Stack<T>` using a `DynArray<T>`.
 
 In this implementation, it's assumed that `T` has size of 64 bits.
 
-## Attributes
-- `data: &T`: a pointer for an array of objects of type `T`;
-- `capacity: u32`: the number of objects of type `T` that can be put on `data` array;
-- `size: u32`: the number of objects of type `T` that `data` array contains.
+You can see the attributes and methods of `DynArray<T>` [here](../../concrete/dynamic_array).
 
 ## Methods
-
-### `init(self: &ArrayStack<T>) -> Result<(), ()>`
-
-Initializes the dynamic array of an `ArrayStack<T>`.
-
-```
-function init(self: &ArrayStack<T>) -> Result<(), ()>:
-    result <- mem_alloc(size_of(T))
-    if result = Error(_):
-        return Error
-    else if result = Ok(data):
-        result <- data
-    self.data <- result
-    self.capacity <- 1
-    self.size <- 0
-    return Ok
-```
-
-### `free(self: &ArrayStack<T>)`
-
-Frees the dynamic array of an `ArrayStack<T>`.
-
-```
-function free(self: &ArrayStack<T>):
-    mem_free(self.data)
-    self.data <- nullptr
-    self.capacity <- 0
-    self.size <- 0
-```
-
-### `resize(self: &ArrayStack<T>) -> Result<(), ()>`
-
-Updates the size of the dynamic array of `self`.
-
-```
-function resize(self: &ArrayStack<T>) -> Result<(), ()>:
-	new_capacity <- max(1, 2 * self.size)
-	result <- mem_realloc(self.data, new_capacity * size_of(T))
-	if result = Error(_):
-		return Error
-	else if result = Ok(data):
-		result <- data
-	self.data <- result
-	self.capacity <- new_capacity
-	return Ok
-```
 
 ### `push(self: &ArrayStack<T>, value: T) -> Result<(), ()>`
 
