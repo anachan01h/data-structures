@@ -68,6 +68,7 @@ main:
 
 	mov rdi, msg1
 	mov esi, ebx
+	add esi, 5
 	xor eax, eax
 	call printf
 
@@ -89,14 +90,13 @@ main:
 	cmp [stack + ArrayStack.size], dword 0
 	ja .loop4
 
+	xor eax, eax
 .error:
 	mov ebx, eax
 	mov rdi, stack
 	call stack_free
 	mov eax, ebx
-	jmp .exit
 
-	xor eax, eax
 .exit:
 	leave
 	ret

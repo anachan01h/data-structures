@@ -58,8 +58,12 @@ stack_pop:
 	ja .no_resize
 
 	call stack_resize			; ... then stack.resize()
+	jmp .end
 
 .no_resize:
+	xor eax, eax
+
+.end:
 	mov rdx, [rbp - 8]
 	leave
 	ret
