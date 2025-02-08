@@ -1,7 +1,7 @@
+%include "./include/utils.inc"
+
 extern queue_init, queue_free, queue_enqueue, queue_dequeue
 extern printf
-
-%include "./include/utils.inc"
 
 section .note.GNU-stack noalloc noexec nowrite progbits
 
