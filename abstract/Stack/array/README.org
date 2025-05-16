@@ -1,0 +1,3 @@
+* Stack as Array
+
+My implementation of ~Stack<T>~ as an array, where ~T~ has size of 64 bits.

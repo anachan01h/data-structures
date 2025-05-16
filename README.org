@@ -6,4 +6,4 @@ My implementation of some data structures in Assembly x64.
 TODO!
 
 *** Abstract Data Structures
-TODO!
+- [[./abstract/Stack][Stack]]

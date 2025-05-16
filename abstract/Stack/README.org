@@ -1,0 +1,7 @@
+* Stack
+
+Let ~T~ be a data type. A *stack* of type ~T~, denoted by ~Stack<T>~, is a sequence of objects of type ~T~ with the following methods:
+- ~push(value: T)~: inserts ~value~ to the top of stack;
+- ~pop() -> T~: removes a value from the top of stack, and returns it.
+
+*Note:* the top of a stack is the end of its sequence.
